@@ -3,7 +3,7 @@
 
 (defn remove-sessions [conn]
   (let [t (System/currentTimeMillis)]
-    (jdb/delete! db :session_store ["? - idle_timeout < 0 or ? - absolute_timeout < 0" t t])))
+    (jdbc/delete! conn :session_store ["? - idle_timeout < 0 or ? - absolute_timeout < 0" t t])))
 
 (defprotocol Stoppable
   "Something that can be stopped"
@@ -22,18 +22,17 @@
     (start-cleaner db {}))
   ([db {:keys [interval-secs]
         :or {interval-secs 60}}]
-    (let [state-atom  (atom :running)
-          interval-ms (* 1000 interval-secs)
-          runner      ]
+    (let [state  (atom :running)
+          interval-ms (* 1000 interval-secs)]
       (-> (fn runner []
-            (when @state-atom
+            (when @state
               (remove-sessions db)
               (sleep interval-ms)))
           (Thread.)
           (.start))
       (reify Stoppable
-        (stopped? [_] (not @state-atom))
-        (stop     [_] (swap! state-atom (constantly false)))))))
+        (stopped? [_] (not @state))
+        (stop     [_] (swap! state (constantly false)))))))
 
 (defn stop-cleaner [session-cleaner]
   {:pre [(satisfies? Stoppable session-cleaner)]}

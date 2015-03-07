@@ -64,5 +64,8 @@
 
 (ns-unmap *ns* '->JdbcStore)
 
-(defn jdbc-store [db & {:keys [table deserializer]}]
-  (JdbcStore. db (or table :session_store) (or deserializer (detect-blob-reader db))))
+(defn jdbc-store [db & [{:keys [table blob-reader]
+                         :or {table :session_store
+                              blob-reader (detect-blob-reader db)}}]]
+  (JdbcStore. db table blob-reader))
+
