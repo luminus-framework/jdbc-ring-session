@@ -1,4 +1,4 @@
-(ns ring-jdbc-session.cleaner
+(ns jdbc-ring-session.cleaner
   (:require [clojure.java.jdbc :as jdbc]))
 
 (defn remove-sessions [conn]

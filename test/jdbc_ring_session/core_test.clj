@@ -1,7 +1,7 @@
-(ns ring-jdbc-session.core-test
+(ns jdbc-ring-session.core-test
   (:require [clojure.test :refer :all]
             [clojure.java.jdbc :as jdbc]
-            [ring-jdbc-session.core :refer :all]))
+            [jdbc-ring-session.core :refer :all]))
 
 (def db
   {:subprotocol "postgresql"

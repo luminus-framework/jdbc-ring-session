@@ -1,4 +1,4 @@
-(ns ring-jdbc-session.core
+(ns jdbc-ring-session.core
   (:require [clojure.java.jdbc :as jdbc]
             [taoensso.nippy :as nippy]
             [ring.middleware.session.store :refer :all])
