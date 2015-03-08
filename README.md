@@ -1,4 +1,4 @@
-# ring-jdbc-session
+# jdbc-ring-session
 
 A Clojure library for using a SQL backend for Ring sessions.
 
