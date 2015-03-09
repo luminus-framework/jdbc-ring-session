@@ -6,6 +6,7 @@
  :dependencies [[org.clojure/clojure "1.6.0"]
                 [ring/ring-core "1.3.2"]
                 [com.taoensso/nippy "2.8.0"]
+                [commons-codec/commons-codec "1.10"]
                 [org.clojure/java.jdbc "0.3.6"]]
 
   :profiles

@@ -18,11 +18,14 @@ a `clojure.java.jdbc` datasource definition:
    :subname "session"
    :user "admin"
    :password "admin"})
-   
-(def store (jdbc-store db))  
+
+(def store (jdbc-store db))
 ```
 
-The session will be stored as a byte array serialized using [nippy](https://github.com/ptaoussanis/nippy). The table format for PostgreSQL is shown below:
+The session will be stored as a byte array serialized using [nippy](https://github.com/ptaoussanis/nippy). The table formats are shown below.
+
+
+PostgeSQL:
 
 ```sql
 CREATE TABLE session_store
@@ -34,7 +37,19 @@ CREATE TABLE session_store
 )
 ```
 
-The `jdbc-store` function accepts optional map with keys called `:table` and `:blob-reader`. The `:table` defaults to `:session_store`, while the `:blob-reader` is used to specify a custom byte array reader for the specific database. The library will attempt to figure out the appropriate reader based on type. Currently, PostgeSQL and Oracle BLOB formats are supported as the default readers.
+Oracle:
+
+```sql
+CREATE TABLE SESSION_STORE
+(
+  key VARCHAR2(100 BYTE),
+  absolute_timeout NUMBER,
+  idle_timeout NUMBER,
+  value BLOB
+)
+```
+
+The `jdbc-store` function accepts an optional map with the keys called `:table`, `:serializer` and `:deserializer`. The `:table` defaults to `:session_store`, while the `:serializer` and `:deserializer` keys are used to specify how the session data should be serialized and deserialized for the specific database. The library will attempt to figure out the appropriate serializer/deserializer based on the connection type. Currently, PostgeSQL and Oracle BLOB formats are supported out of the box.
 
 ```clojure
 (jdbc-store db {:table :sessions})
@@ -46,7 +61,7 @@ A cleaner thread is provided in the `ring-jdbc-session.cleaner` for removing exp
 ```clojure
 (ns db.core
   (:require [ring-jdbc-session.cleaner :refer [start-cleaner stop-cleaner]))
-  
+
 (start-cleaner)
 
 (stop-cleaner)
