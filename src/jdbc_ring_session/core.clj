@@ -5,11 +5,18 @@
   (:import java.util.UUID
            org.apache.commons.codec.binary.Base64))
 
+(defn serialize-mysql [value]
+  (nippy/freeze value))
+
 (defn serialize-postgres [value]
   (nippy/freeze value))
 
 (defn serialize-oracle [value]
   (-> value nippy/freeze Base64/encodeBase64))
+
+(defn deserialize-mysql [value]
+  (when value
+    (nippy/thaw value)))
 
 (defn deserialize-postgres [value]
   (when value
@@ -20,12 +27,14 @@
     (-> blob (.getBytes 1 (.length blob)) Base64/decodeBase64 nippy/thaw)))
 
 (def serializers
-  {:oracle serialize-oracle
-   :postgres serialize-postgres})
+  {:mysql serialize-mysql
+   :postgres serialize-postgres
+   :oracle serialize-oracle})
 
 (def deserializers
-  {:oracle deserialize-oracle
-   :postgres deserialize-postgres})
+  {:mysql deserialize-mysql
+   :postgres deserialize-postgres
+   :oracle deserialize-oracle})
 
 (defn detect-db [db]
   (let [db-name (.. (jdbc/get-connection db) getMetaData getDatabaseProductName toLowerCase)]
@@ -37,7 +46,7 @@
 
 (defn read-session-value [datasource table deserialize key]
   (jdbc/with-db-transaction [conn datasource]
-    (-> (jdbc/query conn ["select value from session_store where key = ?" key])
+    (-> (jdbc/query conn ["select value from session_store where session_id = ?" key])
         first :value deserialize)))
 
 (defn update-session-value! [conn table serialize key value]
@@ -46,14 +55,14 @@
    :session_store {:idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
                    :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
                    :value (serialize value)}
-   ["key = ? " key])
+   ["session_id = ? " key])
   key)
 
 (defn insert-session-value! [conn table serialize value]
   (let [key (str (UUID/randomUUID))]
     (jdbc/insert!
      conn
-     :session_store {:key key
+     :session_store {:session_id key
                      :idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
                      :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
                      :value (serialize value)})
@@ -72,7 +81,7 @@
        (insert-session-value! conn table serialize value))))
   (delete-session
    [_ key]
-   (jdbc/delete! datasource table ["key = ?" key])
+   (jdbc/delete! datasource table ["session_id = ?" key])
    nil))
 
 (ns-unmap *ns* '->JdbcStore)

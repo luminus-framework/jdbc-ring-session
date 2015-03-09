@@ -30,7 +30,7 @@ PostgeSQL:
 ```sql
 CREATE TABLE session_store
 (
-  key VARCHAR(36),
+  session_id VARCHAR(36) NOT NULL PRIMARY KEY,
   idle_timeout BIGINT,
   absolute_timeout BIGINT,
   value BYTEA
@@ -42,12 +42,25 @@ Oracle:
 ```sql
 CREATE TABLE SESSION_STORE
 (
-  key VARCHAR2(100 BYTE),
+  session_id VARCHAR2(100 BYTE) NOT NULL PRIMARY KEY,
   absolute_timeout NUMBER,
   idle_timeout NUMBER,
   value BLOB
 )
 ```
+
+MySQL:
+
+```sql
+CREATE TABLE `session_store` (
+  `session_id` VARCHAR(36) NOT NULL,
+  `idle_timeout` DOUBLE DEFAULT NULL,
+  `absolute_timeout` DOUBLE DEFAULT NULL,
+  `value` BLOB,
+  PRIMARY KEY (`session_id`)
+)
+```
+
 
 The `jdbc-store` function accepts an optional map with the keys called `:table`, `:serializer` and `:deserializer`. The `:table` defaults to `:session_store`, while the `:serializer` and `:deserializer` keys are used to specify how the session data should be serialized and deserialized for the specific database. The library will attempt to figure out the appropriate serializer/deserializer based on the connection type. Currently, PostgeSQL and Oracle BLOB formats are supported out of the box.
 
