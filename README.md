@@ -65,7 +65,7 @@ CREATE TABLE `session_store` (
 
 ### session store initialization
 
-The `jdbc-store` function accepts an optional map with the keys called `:table`, `:serializer` and `:deserializer`. The `:table` defaults to `:session_store`, while the `:serializer` and `:deserializer` keys are used to specify how the session data should be serialized and deserialized for the specific database. The library will attempt to figure out the appropriate serializer/deserializer based on the connection type. Currently, PostgeSQL and Oracle BLOB formats are supported out of the box.
+The `jdbc-store` function accepts an optional map with the keys called `:table`, `:serializer` and `:deserializer`. The `:table` defaults to `:session_store`, while the `:serializer` and `:deserializer` keys are used to specify how the session data should be serialized and deserialized for the specific database. The library will attempt to figure out the appropriate serializer/deserializer based on the connection type. MySQL, PostgeSQL and Oracle BLOB formats are supported out of the box.
 
 ```clojure
 (jdbc-store db {:table :sessions})
