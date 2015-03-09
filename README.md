@@ -22,6 +22,8 @@ a `clojure.java.jdbc` datasource definition:
 (def store (jdbc-store db))
 ```
 
+### database configuration
+
 The session will be stored as a byte array serialized using [nippy](https://github.com/ptaoussanis/nippy). The table formats are shown below.
 
 
@@ -61,6 +63,7 @@ CREATE TABLE `session_store` (
 )
 ```
 
+### store initialization
 
 The `jdbc-store` function accepts an optional map with the keys called `:table`, `:serializer` and `:deserializer`. The `:table` defaults to `:session_store`, while the `:serializer` and `:deserializer` keys are used to specify how the session data should be serialized and deserialized for the specific database. The library will attempt to figure out the appropriate serializer/deserializer based on the connection type. Currently, PostgeSQL and Oracle BLOB formats are supported out of the box.
 
@@ -68,6 +71,26 @@ The `jdbc-store` function accepts an optional map with the keys called `:table`,
 (jdbc-store db {:table :sessions})
 ```
 
+### custom serialization
+
+The serializer function accepts the session map and returns the serialized value that will be inserted
+in the table, eg:
+
+```clojure
+(defn serialize-postgres [value]
+  (nippy/freeze value))
+```
+
+The deserializer function receives the session value in the database and returns the deserialized session, eg:
+
+```clojure
+(defn deserialize-postgres [value]
+  (when value
+    (nippy/thaw value)))
+```
+
+
+### stale session cleanup
 
 A cleaner thread is provided in the `ring-jdbc-session.cleaner` for removing expired sessions from the database. The `idle_timeout` and `absolute_timeout` keys are expected to be populated by the [ring-session-timeout](https://github.com/ring-clojure/ring-session-timeout) library. These keys are used by the cleaner to remove stale sessions. The cleaner can be started and stopped as follows:
 
