@@ -2,6 +2,8 @@
 
 A Clojure library for using a SQL backend for Ring sessions.
 
+[![Clojars Project](http://clojars.org/jdbc-ring-session/latest-version.svg)](http://clojars.org/jdbc-ring-session)
+
 ## Usage
 
 Use the `ring-jdbc-session.core/jdbc-store` function to create a new store. The function accepts
