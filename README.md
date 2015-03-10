@@ -1,6 +1,6 @@
 # jdbc-ring-session
 
-A Clojure library for using a SQL backend for Ring sessions.
+A Clojure library for SQL backed Ring sessions.
 
 [![Clojars Project](http://clojars.org/jdbc-ring-session/latest-version.svg)](http://clojars.org/jdbc-ring-session)
 
