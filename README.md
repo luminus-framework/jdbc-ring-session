@@ -6,7 +6,7 @@ A Clojure library for JDBC backed Ring sessions.
 
 ## Usage
 
-Use the `ring-jdbc-session.core/jdbc-store` function to create a new store. The function accepts
+Use the `jdbc-ring-session.core/jdbc-store` function to create a new store. The function accepts
 a `clojure.java.jdbc` datasource definition:
 
 ```clojure
@@ -62,6 +62,19 @@ CREATE TABLE `session_store` (
   PRIMARY KEY (`session_id`)
 )
 ```
+
+H2:
+
+```h2
+CREATE TABLE session_store (
+  session_id VARCHAR(36) NOT NULL,
+  idle_timeout BIGINT DEFAULT NULL,
+  absolute_timeout BIGINT DEFAULT NULL,
+  value BINARY(10000),
+  PRIMARY KEY (session_id)
+)
+```
+
 
 ### session store initialization
 

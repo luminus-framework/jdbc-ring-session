@@ -14,6 +14,9 @@
 (defn serialize-oracle [value]
   (-> value nippy/freeze Base64/encodeBase64))
 
+(defn serialize-h2 [value]
+  (nippy/freeze value))
+
 (defn deserialize-mysql [value]
   (when value
     (nippy/thaw value)))
@@ -26,15 +29,21 @@
   (when blob
     (-> blob (.getBytes 1 (.length blob)) Base64/decodeBase64 nippy/thaw)))
 
+(defn deserialize-h2 [value]
+  (when value
+    (nippy/thaw value)))
+
 (def serializers
   {:mysql serialize-mysql
    :postgres serialize-postgres
-   :oracle serialize-oracle})
+   :oracle serialize-oracle
+   :h2 serialize-h2})
 
 (def deserializers
   {:mysql deserialize-mysql
    :postgres deserialize-postgres
-   :oracle deserialize-oracle})
+   :oracle deserialize-oracle
+   :h2 deserialize-h2})
 
 (defn detect-db [db]
   (let [db-name (.. (jdbc/get-connection db) getMetaData getDatabaseProductName toLowerCase)]
@@ -42,6 +51,7 @@
      (.contains db-name "oracle") :oracle
      (.contains db-name "postgres") :postgres
      (.contains db-name "mysql") :mysql
+     (.contains db-name "h2") :h2
      :else (throw (Exception. (str "unrecognized DB: " db-name))))))
 
 (defn read-session-value [datasource table deserialize key]
