@@ -11,7 +11,7 @@ a `clojure.java.jdbc` datasource definition:
 
 ```clojure
 (ns db.core
-  (:require [ring-jdbc-session.core :refer [jdbc-store]]))
+  (:require [jdbc-ring-session.core :refer [jdbc-store]]))
 
 (def db
   {:subprotocol "postgresql"
