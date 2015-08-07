@@ -109,7 +109,7 @@ A cleaner thread is provided in the `ring-jdbc-session.cleaner` for removing exp
 
 ```clojure
 (ns db.core
-  (:require [ring-jdbc-session.cleaner :refer [start-cleaner stop-cleaner]))
+  (:require [jdbc-ring-session.cleaner :refer [start-cleaner stop-cleaner]))
 
 (start-cleaner)
 
