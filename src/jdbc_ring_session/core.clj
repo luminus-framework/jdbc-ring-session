@@ -56,7 +56,7 @@
 
 (defn read-session-value [datasource table deserialize key]
   (jdbc/with-db-transaction [conn datasource]
-    (-> (jdbc/query conn ["select value from session_store where session_id = ?" key])
+    (-> (jdbc/query conn [(str "select value from " (name table) " where session_id = ?") key])
         first :value deserialize)))
 
 (defn update-session-value! [conn table serialize key value]
