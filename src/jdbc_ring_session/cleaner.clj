@@ -3,7 +3,7 @@
 
 (defn remove-sessions [conn]
   (let [t (System/currentTimeMillis)]
-    (jdbc/delete! conn :session_store ["? - idle_timeout < 0 or ? - absolute_timeout < 0" t t])))
+    (jdbc/delete! conn :session_store ["idle_timeout < ? or  absolute_timeout < ?" t t])))
 
 (defprotocol Stoppable
   "Something that can be stopped"
