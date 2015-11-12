@@ -122,7 +122,26 @@ The `start-cleaner` function accepts an optional map with the `:interval-secs` k
 (start-cleaner {:interval-secs 120})
 ```
 
+## Troubleshooting
 
+### Running a database on a non standard port
+
+Note that when running a database on a non-standard port, the jdbc datasource definition must be formatted as follows ([from jdbc source](https://github.com/clojure/java.jdbc/blob/master/src/main/clojure/clojure/java/jdbc.clj#L195)):
+
+```
+DriverManager (alternative):
+    :dbtype      (required) a String, the type of the database (the jdbc subprotocol)
+    :dbname      (required) a String, the name of the database
+    :host        (optional) a String, the host name/IP of the database
+                            (defaults to 127.0.0.1)
+    :port        (optional) a Long, the port of the database
+                            (defaults to 3306 for mysql, 1433 for mssql/jtds, else nil)
+                            (others)     (optional) passed to the driver as properties.
+```
+
+Adding a `:port` key to the standard DriverManager map will result in the database connection failing with a `org.postgresql.util.PSQLException: FATAL: password authentication failed for user`, and it can be difficult to trace it back to the DriverManager format.
+
+Using a string `subprotocol://user:password@host:post/subname`, instead of a DriverManager map will also work.
 
 ## License
 
