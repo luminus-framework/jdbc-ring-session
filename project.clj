@@ -1,4 +1,4 @@
-(defproject jdbc-ring-session "0.6"
+(defproject jdbc-ring-session "0.7"
   :description "Ring JDBC Session Store"
   :url "https://github.com/yogthos/jdbc-ring-session"
   :license {:name "Eclipse Public License"
