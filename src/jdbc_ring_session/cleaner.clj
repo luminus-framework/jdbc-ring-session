@@ -2,8 +2,8 @@
   (:require [clojure.java.jdbc :as jdbc]))
 
 (defn remove-sessions [conn]
-  (let [t (System/currentTimeMillis)]
-    (jdbc/delete! conn :session_store ["idle_timeout < ? or  absolute_timeout < ?" t t])))
+  (let [t (quot (System/currentTimeMillis) 1000)]
+    (jdbc/delete! conn :session_store ["idle_timeout < ? or absolute_timeout < ?" t t])))
 
 (defprotocol Stoppable
   "Something that can be stopped"
@@ -25,7 +25,7 @@
     (let [state  (atom :running)
           interval-ms (* 1000 interval-secs)]
       (-> (fn runner []
-            (when @state
+            (while @state
               (remove-sessions db)
               (sleep interval-ms)))
           (Thread.)
