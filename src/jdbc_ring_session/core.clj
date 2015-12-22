@@ -62,9 +62,10 @@
 (defn update-session-value! [conn table serialize key value]
   (jdbc/update!
    conn
-   :session_store {:idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
-                   :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-                   :value (serialize value)}
+   table
+   {:idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
+    :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+    :value (serialize value)}
    ["session_id = ? " key])
   key)
 
@@ -72,10 +73,11 @@
   (let [key (str (UUID/randomUUID))]
     (jdbc/insert!
      conn
-     :session_store {:session_id key
-                     :idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
-                     :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-                     :value (serialize value)})
+     table
+     {:session_id key
+      :idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
+      :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+      :value (serialize value)})
     key))
 
 (deftype JdbcStore [datasource table serialize deserialize]
