@@ -16,16 +16,17 @@
       (jdbc/db-do-commands
        t-conn
        (jdbc/drop-table-ddl :session_store))
-      (jdbc/db-do-commands
-       t-conn
-       (jdbc/create-table-ddl
+      (catch org.h2.jdbc.JdbcBatchUpdateException e
+        (when-not (re-find #"(?i)table.+not found" (.getMessage e))
+          (throw (ex-info "Could not reset session store table in test database" {} e)))))
+    (jdbc/db-do-commands
+      t-conn
+      (jdbc/create-table-ddl
         :session_store
         [:session_id "VARCHAR(36) NOT NULL PRIMARY KEY"]
         [:idle_timeout :bigint]
         [:absolute_timeout :bigint]
-        [:value "bytea"]))
-      (catch Exception e
-        (.getMessage (.getNextException e))))))
+        [:value "bytea"]))))
 
 (use-fixtures
   :once
