@@ -23,10 +23,10 @@
       t-conn
       (jdbc/create-table-ddl
         :session_store
-        [:session_id "VARCHAR(36) NOT NULL PRIMARY KEY"]
-        [:idle_timeout :bigint]
-        [:absolute_timeout :bigint]
-        [:value "bytea"]))))
+        [[:session_id "VARCHAR(36) NOT NULL PRIMARY KEY"]
+         [:idle_timeout :bigint]
+         [:absolute_timeout :bigint]
+         [:value "bytea"]]))))
 
 (use-fixtures
   :once
