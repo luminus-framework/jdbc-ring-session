@@ -46,13 +46,14 @@
    :h2 deserialize-h2})
 
 (defn detect-db [db]
-  (let [db-name (.. (jdbc/get-connection db) getMetaData getDatabaseProductName toLowerCase)]
+  (let [db-name (with-open [conn (jdbc/get-connection db)]
+                  (.. conn getMetaData getDatabaseProductName toLowerCase))]
     (cond
-     (.contains db-name "oracle") :oracle
-     (.contains db-name "postgres") :postgres
-     (.contains db-name "mysql") :mysql
-     (.contains db-name "h2") :h2
-     :else (throw (Exception. (str "unrecognized DB: " db-name))))))
+      (.contains db-name "oracle") :oracle
+      (.contains db-name "postgres") :postgres
+      (.contains db-name "mysql") :mysql
+      (.contains db-name "h2") :h2
+      :else (throw (Exception. (str "unrecognized DB: " db-name))))))
 
 (defn read-session-value [datasource table deserialize key]
   (jdbc/with-db-transaction [conn datasource]
