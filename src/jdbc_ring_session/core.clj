@@ -34,19 +34,19 @@
     (nippy/thaw value)))
 
 (def serializers
-  {:mysql serialize-mysql
+  {:mysql    serialize-mysql
    :postgres serialize-postgres
-   :oracle serialize-oracle
-   :h2 serialize-h2})
+   :oracle   serialize-oracle
+   :h2       serialize-h2})
 
 (def deserializers
-  {:mysql deserialize-mysql
+  {:mysql    deserialize-mysql
    :postgres deserialize-postgres
-   :oracle deserialize-oracle
-   :h2 deserialize-h2})
+   :oracle   deserialize-oracle
+   :h2       deserialize-h2})
 
-(defn detect-db [db]
-  (let [db-name (with-open [conn (jdbc/get-connection db)]
+(defn detect-db [db-spec]
+  (let [db-name (with-open [conn (jdbc/get-connection db-spec)]
                   (.. conn getMetaData getDatabaseProductName toLowerCase))]
     (cond
       (.contains db-name "oracle") :oracle
@@ -62,46 +62,48 @@
 
 (defn update-session-value! [conn table serialize key value]
   (jdbc/update!
-   conn
-   table
-   {:idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
-    :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-    :value (serialize value)}
-   ["session_id = ? " key])
+    conn
+    table
+    {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
+     :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+     :value            (serialize value)}
+    ["session_id = ? " key])
   key)
 
 (defn insert-session-value! [conn table serialize value]
   (let [key (str (UUID/randomUUID))]
     (jdbc/insert!
-     conn
-     table
-     {:session_id key
-      :idle_timeout (:ring.middleware.session-timeout/idle-timeout value)
-      :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-      :value (serialize value)})
+      conn
+      table
+      {:session_id       key
+       :idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
+       :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+       :value            (serialize value)})
     key))
 
 (deftype JdbcStore [datasource table serialize deserialize]
   SessionStore
   (read-session
-   [_ key]
-   (read-session-value datasource table deserialize key))
+    [_ key]
+    (read-session-value datasource table deserialize key))
   (write-session
-   [_ key value]
-   (jdbc/with-db-transaction [conn datasource]
-     (if key
-       (update-session-value! conn table serialize key value)
-       (insert-session-value! conn table serialize value))))
+    [_ key value]
+    (jdbc/with-db-transaction [conn datasource]
+      (if key
+        (update-session-value! conn table serialize key value)
+        (insert-session-value! conn table serialize value))))
   (delete-session
-   [_ key]
-   (jdbc/delete! datasource table ["session_id = ?" key])
-   nil))
+    [_ key]
+    (jdbc/delete! datasource table ["session_id = ?" key])
+    nil))
 
 (ns-unmap *ns* '->JdbcStore)
 
-(defn jdbc-store [db & [{:keys [table serialize deserialize]
-                         :or {table :session_store}}]]
-  (let [db-type (detect-db db)
-        serialize (or serialize (serializers db-type))
+(defn jdbc-store
+  ""
+  [db-spec & [{:keys [table serialize deserialize]
+               :or   {table :session_store}}]]
+  (let [db-type     (detect-db db-spec)
+        serialize   (or serialize (serializers db-type))
         deserialize (or deserialize (deserializers db-type))]
-    (JdbcStore. db table serialize deserialize)))
+    (JdbcStore. db-spec table serialize deserialize)))

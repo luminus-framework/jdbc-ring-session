@@ -116,10 +116,10 @@ A cleaner thread is provided in the `ring-jdbc-session.cleaner` for removing exp
 (stop-cleaner session-cleaner)
 ```
 
-The `start-cleaner` function accepts an optional map with the `:interval-secs` key that defaults to 60. This is the number of seconds to sleep between runs.
+The `start-cleaner` function accepts an optional map with the `:interval` key that defaults to 60. This is the number of seconds to sleep between runs.
 
 ```clojure
-(start-cleaner {:interval-secs 120})
+(start-cleaner {:interval 120})
 ```
 
 ## Troubleshooting
