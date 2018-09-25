@@ -61,14 +61,14 @@
         first :value deserialize)))
 
 (defn update-session-value! [conn table serialize key value]
-  (jdbc/update!
-    conn
-    table
-    {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
-     :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-     :value            (serialize value)}
-    ["session_id = ? " key])
-  key)
+  (jdbc/with-db-transaction [conn conn]
+    (let [data {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
+                :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+                :value            (serialize value)}
+          updated (jdbc/update! conn table data ["session_id = ? " key])]
+      (when (zero? (first updated))
+        (jdbc/insert! conn table (assoc data :session_id key)))
+      key)))
 
 (defn insert-session-value! [conn table serialize value]
   (let [key (str (UUID/randomUUID))]

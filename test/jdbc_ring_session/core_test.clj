@@ -37,4 +37,9 @@
     (let [store (jdbc-store db)
           data {:foo "bar" :bar [1 2 3]}
           k    (.write-session store nil data)]
-      (is (= data (.read-session store k))))))
+      (is (= data (.read-session store k)))
+
+      (testing "same session-id is reused after it has expired (deleted)"
+        (.delete-session store k)
+        (.write-session store k data)
+        (is (= data (.read-session store k)))))))
