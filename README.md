@@ -75,6 +75,17 @@ CREATE TABLE session_store (
 )
 ```
 
+SQL Server:
+
+```sql
+CREATE TABLE session_store (
+  session_id VARCHAR(36) NOT NULL,
+  idle_timeout BIGINT DEFAULT NULL,
+  absolute_timeout BIGINT DEFAULT NULL,
+  value VARBINARY(max),
+  PRIMARY KEY (session_id)
+)
+``` 
 
 ### session store initialization
 
