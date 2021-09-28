@@ -7,7 +7,7 @@
   [conn {:keys [table]
          :or   {table :session_store}}]
   (let [t (quot (System/currentTimeMillis) 1000)]
-    (jdbc.sql/delete! conn (name table) ["idle_timeout < ? or absolute_timeout < ?" t t])))
+    (jdbc.sql/delete! conn table ["idle_timeout < ? or absolute_timeout < ?" t t])))
 
 (defprotocol Stoppable
   "Something that can be stopped"

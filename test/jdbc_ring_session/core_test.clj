@@ -26,8 +26,7 @@ CREATE TABLE session_store (
 
 (use-fixtures
   :once
-  (fn [f]
-    (create-test-table db) (f)))
+  (fn [f] (create-test-table db) (f)))
 
 (deftest a-test
   (testing "test session write/read"

@@ -80,15 +80,16 @@
               :value            (serialize value)}
         updated (jdbc.sql/update! tx (name table) data {:session_id key})]
     (when (zero? (:next.jdbc/update-count updated))
-      (jdbc.sql/insert! tx (name table) (assoc data :session_id key)))
+      (jdbc.sql/insert! tx table (assoc data :session_id key)))
     key))
 
 (defn insert-session-value! [tx table serialize value]
   (let [key (str (UUID/randomUUID))
-        data {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
+        data {:session_id key
+              :idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
               :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
               :value            (serialize value)}]
-    (jdbc.sql/insert! tx (name table) (assoc data :session_id key))
+    (jdbc.sql/insert! tx table data)
     key))
 
 (deftype JdbcStore [datasource table serialize deserialize]
@@ -104,7 +105,7 @@
         (insert-session-value! tx table serialize value))))
   (delete-session
     [_ key]
-    (jdbc.sql/delete! datasource (name table) {:session_id key})
+    (jdbc.sql/delete! datasource table {:session_id key})
     nil))
 
 (ns-unmap *ns* '->JdbcStore)

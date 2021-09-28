@@ -1,6 +1,7 @@
-(ns jdbc-ring-session.core-test
+(ns jdbc-ring-session.cleaner-test
   (:require [clojure.test :refer :all]
             [next.jdbc :as jdbc]
+            [jdbc-ring-session.core :refer :all]
             [jdbc-ring-session.cleaner :refer :all]))
 
 (def db {:dbtype "h2" :dbname "example"})
@@ -19,8 +20,7 @@ CREATE TABLE session_store (
 
 (use-fixtures
   :once
-  (fn [f]
-    (create-test-table db) (f)))
+  (fn [f] (create-test-table db) (f)))
 
 (deftest a-test
 
