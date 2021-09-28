@@ -69,7 +69,8 @@
 (defn read-session-value [datasource table deserialize key]
   (jdbc/with-transaction [tx datasource]
     (-> (jdbc/execute-one! tx [(str "select value from " (name table) " where session_id = ?") key])
-        :SESSION_STORE/VALUE
+        (vals)
+        (first)
         deserialize)))
 
 (defn update-session-value! [tx table serialize key value]

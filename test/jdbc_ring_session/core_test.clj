@@ -14,11 +14,7 @@
 
 (defn create-test-table [db]
   (jdbc/with-transaction [tx db]
-    (try
-      (jdbc/execute! tx ["drop table session_store"])
-      (catch org.h2.jdbc.JdbcSQLSyntaxErrorException e
-        (when-not (re-find #"(?i)table.+not found" (.getMessage e))
-          (throw (ex-info "Could not reset session store table in test database" {} e)))))
+    (jdbc/execute! tx ["drop table if exists session_store"])
     (jdbc/execute! tx  ["
 CREATE TABLE session_store (
   session_id VARCHAR(36) NOT NULL,
@@ -26,15 +22,16 @@ CREATE TABLE session_store (
   absolute_timeout BIGINT DEFAULT NULL,
   value BINARY(10000),
   PRIMARY KEY (session_id)
- )"]))
+ )"])))
 
-  (use-fixtures
-    :once
-    (fn [f] (create-test-table db) (f))))
+(use-fixtures
+  :once
+  (fn [f]
+    (create-test-table db) (f)))
 
 (deftest a-test
   (testing "test session write/read"
-    (let [store (jdbc-store (jdbc/get-datasource db))
+    (let [store (jdbc-store db)
           data {:foo "bar" :bar [1 2 3]}
           k    (.write-session store nil data)]
 
