@@ -1,6 +1,7 @@
 (ns jdbc-ring-session.core
   (:require [taoensso.nippy :as nippy]
             [next.jdbc :as jdbc]
+            [next.jdbc.sql :as jdbc.sql]
             [ring.middleware.session.store :refer :all])
   (:import java.util.UUID
            org.apache.commons.codec.binary.Base64))
@@ -74,26 +75,20 @@
         deserialize)))
 
 (defn update-session-value! [tx table serialize key value]
-  (let [idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
-        absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-        value            (serialize value)
-        updated (jdbc/execute-one! tx [(str "update " (name table) " set idle_timeout = ?, absolute_timeout = ?, value = ? where session_id = ?")
-                                   idle_timeout
-                                   absolute_timeout
-                                   value
-                                   key])]
+  (let [data {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
+              :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+              :value            (serialize value)}
+        updated (jdbc.sql/update! tx (name table) data {:session_id key})]
     (when (zero? (:next.jdbc/update-count updated))
-      (jdbc/execute! tx [(str "insert into " (name table) " (session_id, idle_timeout, absolute_timeout, value) VALUES (?, ?, ?, ?)")
-                         key idle_timeout absolute_timeout value]))
+      (jdbc.sql/insert! tx (name table) (assoc data :session_id key)))
     key))
 
 (defn insert-session-value! [tx table serialize value]
   (let [key (str (UUID/randomUUID))
-        idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
-        absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-        value            (serialize value)]
-    (jdbc/execute! tx [(str "insert into " (name table) " (session_id, idle_timeout, absolute_timeout, value) VALUES (?, ?, ?, ?)")
-                       key idle_timeout absolute_timeout value])
+        data {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
+              :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
+              :value            (serialize value)}]
+    (jdbc.sql/insert! tx (name table) (assoc data :session_id key))
     key))
 
 (deftype JdbcStore [datasource table serialize deserialize]
@@ -109,7 +104,7 @@
         (insert-session-value! tx table serialize value))))
   (delete-session
     [_ key]
-    (jdbc/execute! datasource [(str "delete from " (name table) " where session_id = ?") key])
+    (jdbc.sql/delete! datasource (name table) {:session_id key})
     nil))
 
 (ns-unmap *ns* '->JdbcStore)
