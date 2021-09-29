@@ -7,20 +7,22 @@ A Clojure library for JDBC backed Ring sessions.
 ## Usage
 
 Use the `jdbc-ring-session.core/jdbc-store` function to create a new store. The function accepts
-a `clojure.java.jdbc` datasource definition:
+a `next.jdbc` datasource definition:
 
 ```clojure
 (ns db.core
   (:require [jdbc-ring-session.core :refer [jdbc-store]]))
 
 (def db
-  {:subprotocol "postgresql"
-   :subname "session"
+  {:dbtype "postgresql"
+   :dbname "session"
    :user "admin"
    :password "admin"})
 
 (def store (jdbc-store db))
 ```
+
+The function also accepts an existing datasource, e.g. the connection pool of your application.
 
 ### database configuration
 
