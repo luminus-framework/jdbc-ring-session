@@ -1,5 +1,5 @@
 (ns jdbc-ring-session.cleaner
-  (:require [clojure.java.jdbc :as jdbc])
+  (:require [next.jdbc.sql :as jdbc.sql])
   (:import [java.util.concurrent Executors TimeUnit ScheduledExecutorService]))
 
 (defn remove-sessions
@@ -7,7 +7,7 @@
   [conn {:keys [table]
          :or   {table :session_store}}]
   (let [t (quot (System/currentTimeMillis) 1000)]
-    (jdbc/delete! conn table ["idle_timeout < ? or absolute_timeout < ?" t t])))
+    (jdbc.sql/delete! conn table ["idle_timeout < ? or absolute_timeout < ?" t t])))
 
 (defprotocol Stoppable
   "Something that can be stopped"
