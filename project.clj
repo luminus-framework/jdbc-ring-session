@@ -1,13 +1,13 @@
-(defproject jdbc-ring-session "1.5.0"
+(defproject jdbc-ring-session "1.5.1"
   :description "Ring JDBC Session Store"
   :url "https://github.com/yogthos/jdbc-ring-session"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
- :dependencies [[org.clojure/clojure "1.10.1"]
-                [ring/ring-core "1.8.2"]
-                [com.taoensso/nippy "3.1.1"]
+ :dependencies [[org.clojure/clojure "1.11.1"]
+                [ring/ring-core "1.9.6"]
+                [com.taoensso/nippy "3.2.0"]
                 [commons-codec/commons-codec "1.15"]
-                [com.github.seancorfield/next.jdbc "1.2.724"]]
+                [com.github.seancorfield/next.jdbc "1.3.847"]]
 
   :profiles
   {:dev {:dependencies [[com.h2database/h2 "1.4.200"]]}})
