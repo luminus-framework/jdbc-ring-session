@@ -1,13 +1,15 @@
 (ns jdbc-ring-session.cleaner
-  (:require [next.jdbc.sql :as jdbc.sql])
+  (:require [next.jdbc.sql :as jdbc.sql]
+            [next.jdbc :as jdbc])
   (:import [java.util.concurrent Executors TimeUnit ScheduledExecutorService]))
 
 (defn remove-sessions
   "removes stale sessions from the session table"
-  [conn {:keys [table]
-         :or   {table :session_store}}]
+  [datasource {:keys [table]
+               :or   {table :session_store}}]
   (let [t (quot (System/currentTimeMillis) 1000)]
-    (jdbc.sql/delete! conn table ["idle_timeout < ? or absolute_timeout < ?" t t])))
+    (jdbc/with-transaction [tx datasource]
+      (jdbc.sql/delete! tx table ["idle_timeout < ? or absolute_timeout < ?" t t]))))
 
 (defprotocol Stoppable
   "Something that can be stopped"
