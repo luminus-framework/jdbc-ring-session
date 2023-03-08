@@ -18,6 +18,9 @@
 (defn serialize-h2 [value]
   (nippy/freeze value))
 
+(defn serialize-sqlite [value]
+  (nippy/freeze value))
+
 (defn serialize-sqlserver [value]
   (nippy/freeze value))
 
@@ -41,20 +44,25 @@
   (when value
     (nippy/thaw value)))
 
+(defn deserialize-sqlite [value]
+  (when value
+    (nippy/thaw value)))
 
 (def serializers
   {:mysql     serialize-mysql
    :postgres  serialize-postgres
    :oracle    serialize-oracle
    :h2        serialize-h2
-   :sqlserver serialize-sqlserver})
+   :sqlserver serialize-sqlserver
+   :sqlite    serialize-sqlite})
 
 (def deserializers
   {:mysql     deserialize-mysql
    :postgres  deserialize-postgres
    :oracle    deserialize-oracle
    :h2        deserialize-h2
-   :sqlserver deserialize-sqlserver})
+   :sqlserver deserialize-sqlserver
+   :sqlite    deserialize-sqlite})
 
 (defn detect-db [db-spec]
   (let [db-name (with-open [conn (jdbc/get-connection db-spec)]
@@ -65,6 +73,7 @@
       (.contains db-name "mysql") :mysql
       (.contains db-name "h2") :h2
       (.contains db-name "sql server") :sqlserver
+      (.contains db-name "sqlite") :sqlite
       :else (throw (Exception. (str "unrecognized DB: " db-name))))))
 
 (defn read-session-value [datasource table deserialize key]

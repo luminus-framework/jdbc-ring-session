@@ -87,7 +87,19 @@ CREATE TABLE session_store (
   value VARBINARY(max),
   PRIMARY KEY (session_id)
 )
-``` 
+```
+
+SQLite:
+
+```sql
+CREATE TABLE session_store
+(
+    session_id       VARCHAR NOT NULL PRIMARY KEY,
+    idle_timeout     INTEGER,
+    absolute_timeout INTEGER,
+    value            BLOB
+)
+```
 
 ### session store initialization
 
