@@ -40,3 +40,16 @@ CREATE TABLE session_store (
         (.delete-session store k)
         (.write-session store k data)
         (is (= data (.read-session store k)))))))
+
+(deftest test-delete-session-transaction
+  (let [store (-> db
+                  ;; disable auto-commit
+                  (assoc-in [:options :auto-commit] false)
+                  (jdbc-store))
+        data  {:foo "bar" :bar [1 2 3]}
+        k     (.write-session store nil data)]
+
+    (testing "Delete should be run in transaction because the connection can have disabled auto-commit"
+      (is (= data (.read-session store k)))
+      (is (nil? (.delete-session store k)))
+      (is (nil? (.read-session store k))))))
