@@ -114,7 +114,8 @@
         (insert-session-value! tx table serialize value))))
   (delete-session
     [_ key]
-    (jdbc.sql/delete! datasource table {:session_id key})
+    (next.jdbc/with-transaction [tx datasource]
+      (jdbc.sql/delete! tx table {:session_id key}))
     nil))
 
 (ns-unmap *ns* '->JdbcStore)
