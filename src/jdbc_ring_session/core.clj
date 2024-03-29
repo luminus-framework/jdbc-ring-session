@@ -71,6 +71,7 @@
       (.contains db-name "oracle") :oracle
       (.contains db-name "postgres") :postgres
       (.contains db-name "mysql") :mysql
+      (.contains db-name "mariadb") :mysql
       (.contains db-name "h2") :h2
       (.contains db-name "sql server") :sqlserver
       (.contains db-name "sqlite") :sqlite
