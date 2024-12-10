@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
  :dependencies [[org.clojure/clojure "1.11.1"]
                 [ring/ring-core "1.9.6"]
-                [com.taoensso/nippy "3.2.0"]
+                [com.taoensso/nippy "3.4.2"]
                 [commons-codec/commons-codec "1.15"]
                 [com.github.seancorfield/next.jdbc "1.3.847"]]
 
