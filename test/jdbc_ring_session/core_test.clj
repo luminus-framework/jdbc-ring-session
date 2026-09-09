@@ -36,10 +36,15 @@ CREATE TABLE session_store (
 
       (is (= data (.read-session store k)))
 
-      (testing "same session-id is reused after it has expired (deleted)"
+      (testing "a session deleted between a read and a write is not recreated"
         (.delete-session store k)
-        (.write-session store k data)
-        (is (= data (.read-session store k)))))))
+        (is (= k (.write-session store k data)))
+        (is (nil? (.read-session store k))))
+
+      (testing "a subsequent write with no key starts a fresh session"
+        (let [k2 (.write-session store nil data)]
+          (is (not= k k2))
+          (is (= data (.read-session store k2))))))))
 
 (deftest test-delete-session-transaction
   (let [store (-> db
