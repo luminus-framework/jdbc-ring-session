@@ -84,13 +84,16 @@
         (first)
         deserialize)))
 
-(defn update-session-value! [tx table serialize key value]
+(defn update-session-value!
+  "Updates the session row for the given key. If the row no longer exists the
+  update affects no rows and nothing is written: the session was deleted by a
+  concurrent request (a logout, a revocation, or the cleaner) and must not be
+  recreated by a request that was already in flight."
+  [tx table serialize key value]
   (let [data {:idle_timeout     (:ring.middleware.session-timeout/idle-timeout value)
               :absolute_timeout (:ring.middleware.session-timeout/absolute-timeout value)
-              :value            (serialize value)}
-        updated (jdbc.sql/update! tx (name table) data {:session_id key})]
-    (when (zero? (:next.jdbc/update-count updated))
-      (jdbc.sql/insert! tx table (assoc data :session_id key)))
+              :value            (serialize value)}]
+    (jdbc.sql/update! tx (name table) data {:session_id key})
     key))
 
 (defn insert-session-value! [tx table serialize value]
